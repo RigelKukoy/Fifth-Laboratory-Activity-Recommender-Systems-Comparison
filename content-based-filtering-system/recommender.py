@@ -19,7 +19,7 @@ class ContentBasedRecommender:
         self.df['cast'] = self.df['cast'].fillna('Unknown')
         self.df['rating'] = self.df['rating'].fillna('Not Rated')
 
-        # TODO: Enhance by adding more features
+        
         self.df['content'] = self.df['description'] + ' ' + self.df['listed_in'] + ' ' + self.df['director'] + ' ' + self.df['cast'] + ' ' + self.df['rating']
 
     def build_similarity_matrix(self):
@@ -33,12 +33,10 @@ class ContentBasedRecommender:
         idx = self.df[self.df['title'] == seed_title].index[0]
 
         sim_scores = list(enumerate(self.cosine_sim[idx]))
-
-        # TODO: Enhance
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-
-        # TODO: Enhance 
-        sim_scores = sim_scores[1:top_n+1]
+        
+        sim_scores = [(i, score) for i, score in sim_scores if i != idx]
+      
+        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:top_n]
 
         movie_indices = [i[0] for i in sim_scores]
 
@@ -54,7 +52,7 @@ def main():
     recommender.preprocess_data()
     recommender.build_similarity_matrix()
     # TODO: Enhance by making this into a user input function
-    seed_title = "Zodiac"
+    seed_title = "Naruto Shippuden the Movie: Blood Prison"
     print(f"Top 10 recommendations similar to '{seed_title}':\n")
     recommendations = recommender.get_recommendations(seed_title, top_n=10)
 
