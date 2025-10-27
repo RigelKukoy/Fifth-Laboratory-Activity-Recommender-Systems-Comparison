@@ -15,9 +15,12 @@ class ContentBasedRecommender:
         self.df['description'] = self.df['description'].fillna('')
         self.df['listed_in'] = self.df['listed_in'].fillna('')
         self.df['title'] = self.df['title'].fillna('')
+        self.df['director'] = self.df['director'].fillna('Unknown')
+        self.df['cast'] = self.df['cast'].fillna('Unknown')
+        self.df['rating'] = self.df['rating'].fillna('Not Rated')
 
         # TODO: Enhance by adding more features
-        self.df['content'] = self.df['description'] + ' ' + self.df['listed_in']
+        self.df['content'] = self.df['description'] + ' ' + self.df['listed_in'] + ' ' + self.df['director'] + ' ' + self.df['cast'] + ' ' + self.df['rating']
 
     def build_similarity_matrix(self):
         self.tfidf_matrix = self.vectorizer.fit_transform(self.df['content'])
@@ -39,7 +42,7 @@ class ContentBasedRecommender:
 
         movie_indices = [i[0] for i in sim_scores]
 
-        recommendations = self.df.iloc[movie_indices][['title', 'type', 'listed_in', 'description']]
+        recommendations = self.df.iloc[movie_indices][['title', 'type', 'listed_in', 'description', 'director', 'cast', 'rating']]
         return recommendations
 
 
@@ -59,7 +62,20 @@ def main():
         for idx, row in enumerate(recommendations.itertuples(), 1):
             print(f"{idx}. {row.title} ({row.type})")
             print(f"   Genre: {row.listed_in}")
-            print(f"   Description: {row.description[:100]}...\n")
+            print(f"   Description: {row.description[:100]}...")
+            print(f"   Director: {row.director}")
+            
+            # Clean cast
+            cast_list = row.cast.split(',') 
+            cast_list = [c.strip() for c in cast_list]  
+            max_cast = 5  # maximum number of actors to show
+            if len(cast_list) > max_cast:
+                cast_display = ', '.join(cast_list[:max_cast]) + f", and {len(cast_list)-max_cast} more"
+            else:
+                cast_display = ', '.join(cast_list)
+            print(f"   Cast: {cast_display}")
+            
+            print(f"   Rating: {row.rating}\n")
     else:
         print(recommendations)
 
