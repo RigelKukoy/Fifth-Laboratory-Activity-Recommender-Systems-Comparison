@@ -51,32 +51,43 @@ def main():
 
     recommender.preprocess_data()
     recommender.build_similarity_matrix()
-    # TODO: Enhance by making this into a user input function
-    seed_title = "Naruto Shippuden the Movie: Blood Prison"
-    print(f"Top 10 recommendations similar to '{seed_title}':\n")
-    recommendations = recommender.get_recommendations(seed_title, top_n=10)
 
-    if isinstance(recommendations, pd.DataFrame):
-        for idx, row in enumerate(recommendations.itertuples(), 1):
-            print(f"{idx}. {row.title} ({row.type})")
-            print(f"   Genre: {row.listed_in}")
-            print(f"   Description: {row.description[:100]}...")
-            print(f"   Director: {row.director}")
-            
-            # Clean cast
-            cast_list = row.cast.split(',') 
-            cast_list = [c.strip() for c in cast_list]  
-            max_cast = 5  # maximum number of actors to show
-            if len(cast_list) > max_cast:
-                cast_display = ', '.join(cast_list[:max_cast]) + f", and {len(cast_list)-max_cast} more"
-            else:
-                cast_display = ', '.join(cast_list)
-            print(f"   Cast: {cast_display}")
-            
-            print(f"   Rating: {row.rating}\n")
-    else:
-        print(recommendations)
+    while True:
+        seed_title_input = input("Enter a movie/TV show title (or 'q' to quit): ").strip()
+        if seed_title_input.lower() == 'q':
+            print("Exiting program. Goodbye!")
+            break
+        if not seed_title_input:
+            print("No title entered. Please try again.\n")
+            continue
 
+        
+        seed_title = seed_title_input.title()
+
+        recommendations = recommender.get_recommendations(seed_title, top_n=10)
+        print("\n" + "="*50)
+        if isinstance(recommendations, pd.DataFrame):
+            print(f"\nTop 10 recommendations similar to '{seed_title}':\n")
+            for idx, row in enumerate(recommendations.itertuples(), 1):
+                print(f"{idx}. {row.title} ({row.type})")
+                print(f"   Genre: {row.listed_in}")
+                print(f"   Description: {row.description[:100]}...")  
+                print(f"   Director: {row.director}")
+
+                cast_list = [c.strip() for c in row.cast.split(',')]
+                max_cast = 5
+                if len(cast_list) > max_cast:
+                    cast_display = ', '.join(cast_list[:max_cast]) + f", and {len(cast_list)-max_cast} more"
+                else:
+                    cast_display = ', '.join(cast_list)
+                print(f"   Cast: {cast_display}")
+
+                print(f"   Rating: {row.rating}\n")
+        else:
+            print(f"{recommendations}\n")
+            print("Please try again.\n")
+
+        print( "="*50)
 
 if __name__ == "__main__":
     main()
